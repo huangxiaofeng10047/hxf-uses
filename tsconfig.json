@@ -2,7 +2,10 @@
   "extends": "astro/tsconfigs/strict",
   "compilerOptions": {
     "strictNullChecks": true,
-    "jsx": "react",
-    "types": ["@astrojs/image"]
+    "jsx": "react-jsx",
+    "types": [
+      "@astrojs/image"
+    ],
+    "jsxImportSource": "react"
   }
 }
