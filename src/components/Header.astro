@@ -4,8 +4,7 @@ import { HOMEPAGE_URL } from '../consts'
 import { IoLogoGithub } from 'react-icons/io5'
 import FootprintIcon from './icons/footprint'
 import ThemeToggle from './ThemeToggleButton'
-
-
+import DropdownMenu from './DropdownMenu'
 ---
 
 <header class="fixed w-full p-2 z-20 backdrop-blur-md">
@@ -25,6 +24,7 @@ import ThemeToggle from './ThemeToggleButton'
       </div>
       <div class="flex-1"></div>
       <ThemeToggle client:visible />
+	  <DropdownMenu client:visible  />
     </nav>
   </div>
 </header>

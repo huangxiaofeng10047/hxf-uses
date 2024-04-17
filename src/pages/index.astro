@@ -9,7 +9,6 @@ import { IoArrowForward } from 'react-icons/io5'
 import Masthead from '../components/Masthead.astro'
 import { Image } from 'astro:assets'
 import { getCollection } from 'astro:content';
-import CreatedWithSection from '../components/CreatedWithSection.astro'
 
 const posts = (await getCollection('blog')).sort(
 	(a, b) => a.data.pubDate.valueOf() - b.data.pubDate.valueOf()
@@ -69,7 +68,6 @@ const posts = (await getCollection('blog')).sort(
             }
           </ul>
         </section>
-        <CreatedWithSection />
       </Content>
     </main>
     <Footer />
