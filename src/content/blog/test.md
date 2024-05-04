@@ -4,15 +4,14 @@ public: true
 slug: test
 title: test
 createdAt: 1714205756688
-updatedAt: 1714206110167
+updatedAt: 1714810178773
 tags:
   - test
-heroImage: /astrojs.jpg
+heroImage: /posts/test_thumbnail.jpg
 ---
 我门都是被生活折磨的人，如何找寻自己的快乐，如何让你快乐，真的是一个很难的事情
 
 
-![stuck.jpg](/posts/test_stuck-jpg.jpg)
 
 为什么要指着追寻自己的快乐。
 
