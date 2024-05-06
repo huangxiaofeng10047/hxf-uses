@@ -4,7 +4,7 @@ slug: gradle
 public: true
 title: 使用gradle构建多项目模块
 createdAt: 1714976457746
-updatedAt: 1714978569865
+updatedAt: 1714982941280
 tags: []
 heroImage: /astrojs.jpg
 ---
