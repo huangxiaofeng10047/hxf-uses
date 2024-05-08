@@ -4,7 +4,7 @@ slug: gradle2
 public: true
 title: SpringBoot+Java17+Gradle+Docker+K8s 环境构建及一键部署
 createdAt: 1715046361144
-updatedAt: 1715053998525
+updatedAt: 1715156521844
 tags: []
 heroImage: /astrojs.jpg
 ---
@@ -233,3 +233,19 @@ spec:
 ![clipboard5.png](/posts/gradle2_clipboard5-png.png)
 部署成功后，通过k9s看到
 ![clipboard6.png](/posts/gradle2_clipboard6-png.png)
+
+`git rm --cached` 是 Git 中的一个命令，用于从 Git 的暂存区（也称为索引）中移除文件，但保留其在工作目录中的副本。让我详细解释一下它的含义：
+
+- `git rm --cached <file>`：从暂存区中移除指定的文件，但不会删除工作目录中的实际文件。
+- 使用这个命令后，文件将不再被跟踪，但仍然保留在您的工作目录中。
+- 这对于不再需要跟踪的文件（例如编译输出、日志文件等）很有用。
+
+例如，如果您想要从 Git 跟踪中移除一个名为 `my_file.txt` 的文件，但仍然保留在工作目录中，您可以运行以下命令：
+
+```bash
+git rm --cached my_file.txt
+```
+
+这将取消对 `my_file.txt` 的跟踪，但不会删除实际文件。
+
+如果您还有其他问题，请随时告知！😊 [1](https://git-scm.com/docs/git-rm) [2](https://stackoverflow.com/questions/65434544/whats-the-difference-between-git-rm-cached-git-restore-staged-and-gi) [3](https://timmousk.com/blog/git-rm-cached/)
