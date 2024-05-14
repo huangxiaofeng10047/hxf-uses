@@ -51,7 +51,7 @@ const posts = (await getCollection('blog')).sort(
 					<a href={`/blog/${post.slug}/`}>
                     <Image
                       class="border border-slate-300 dark:border-zinc-700 rounded-xl"
-                      src={post.data.heroImage}
+                      src={post.data.heroImage || ''}
                       width={720 * 2}
 					  height={20}
                       alt="Thumbnail"
