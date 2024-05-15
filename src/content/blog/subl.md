@@ -6,7 +6,7 @@ title: sublimede hack
 createdAt: 1715674652762
 updatedAt: 1715762156593
 tags: []
-heroImage: /astrojs.jpg
+heroImage: /blogjpg.jpeg
 ---
 
 ![clipboard.png](/posts/subl_clipboard-png.png)

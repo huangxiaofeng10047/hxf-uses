@@ -6,7 +6,7 @@ title: 使用gradle构建多项目模块
 createdAt: 1714976457746
 updatedAt: 1714982941280
 tags: []
-heroImage: /astrojs.jpg
+heroImage: /blogjpg.jpeg
 ---
 ## 前言
 -- gradle

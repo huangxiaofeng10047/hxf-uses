@@ -6,7 +6,7 @@ title: Spring的泛型擦除学习
 createdAt: 1715225547530
 updatedAt: 1715313043003
 tags: []
-heroImage: /astrojs.jpg
+heroImage: /blogjpg.jpeg
 ---
 spring的事件监听机制，在实际开发过程中解耦能解决痛处。
 接下来showme code来看看

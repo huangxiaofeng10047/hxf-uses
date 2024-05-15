@@ -6,7 +6,7 @@ title: 学习掘金的容器管理系统
 createdAt: 1715566956963
 updatedAt: 1715571408699
 tags: []
-heroImage: /astrojs.jpg
+heroImage: /blogjpg.jpeg
 ---
 ## 第一步使用gin开始开发项目
 ```

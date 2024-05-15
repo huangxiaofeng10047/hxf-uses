@@ -7,7 +7,7 @@ createdAt: 1714198849144
 updatedAt: 1714199091014
 tags:
   - database
-heroImage: /astrojs.jpg
+heroImage: /blogjpg.jpeg
 ---
 test
 test222
