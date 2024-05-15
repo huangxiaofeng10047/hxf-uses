@@ -1,6 +1,5 @@
 import { defineConfig } from "astro/config";
 import sitemap from "@astrojs/sitemap";
-import image from "@astrojs/image";
 import tailwind from "@astrojs/tailwind";
 
 import react from "@astrojs/react";
@@ -9,7 +8,7 @@ import addClasses from 'rehype-add-classes'
 // https://astro.build/config
 export default defineConfig({
   site: "https://example.com",
-  integrations: [sitemap(), image(), tailwind(), react()]
+  integrations: [sitemap(),  tailwind(), react()]
   ,
   markdown: {
     rehypePlugins: [
