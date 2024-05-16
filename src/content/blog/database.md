@@ -7,7 +7,7 @@ createdAt: 1714198849144
 updatedAt: 1714199091014
 tags:
   - database
-heroImage: /blog.jpg
+heroImage: /cover.webp
 ---
 
 test

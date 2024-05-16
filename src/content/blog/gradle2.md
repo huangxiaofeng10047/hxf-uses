@@ -6,7 +6,7 @@ title: SpringBoot+Java17+Gradle+Docker+K8s 环境构建及一键部署
 createdAt: 1715046361144
 updatedAt: 1715156521844
 tags: []
-heroImage: /blog.jpg
+heroImage: /cover.webp
 ---
 使用gradle配置的项目，选择了kotlin的语言，查看一下配置文件
 build.gradle.kts

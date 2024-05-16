@@ -22,7 +22,7 @@ await liveExport.start({
     frontmatter.createdAt = note.createdAt
     frontmatter.updatedAt = note.updatedAt
     frontmatter.tags = tags.map(t => t.name)
-    frontmatter.heroImage = '/blog.jpg'
+    frontmatter.heroImage = '/cover.webp'
     if (!frontmatter.slug) frontmatter.slug = toKebabCase(note.title)
   },
   pathForNote: ({ frontmatter }) => {

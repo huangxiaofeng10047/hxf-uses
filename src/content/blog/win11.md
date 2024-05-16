@@ -6,7 +6,7 @@ title: win11的美化
 createdAt: 1715678904000
 updatedAt: 1715679014010
 tags: []
-heroImage: /blog.jpg
+heroImage: /cover.webp
 ---
 linux上有neofetch，win11上有什么了
 ![clipboard.png](/posts/win11_clipboard-png.png)

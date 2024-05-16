@@ -7,7 +7,7 @@ createdAt: 1714207270032
 updatedAt: 1714231856593
 tags:
   - nvim
-heroImage: /blog.jpg
+heroImage: /cover.webp
 ---
 
 首先我们需要时用lazyvim来进行vim的设置，为什么采用lazynvim时因为lazynvim为我们准备了很多有用的插件配置，可以方便我们去使用。

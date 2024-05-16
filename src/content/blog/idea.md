@@ -7,7 +7,7 @@ createdAt: 1714372117821
 updatedAt: 1714457017365
 tags:
   - idea
-heroImage: /blog.jpg
+heroImage: /cover.webp
 ---
 今天在idea上打开wsl2中的java项目，报错了，git。
 ```

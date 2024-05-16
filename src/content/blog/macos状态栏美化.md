@@ -8,7 +8,7 @@ updatedAt: 1714908614422
 tags:
   - macos
   - 个人
-heroImage: /blog.jpg
+heroImage: /cover.webp
 ---
 macos上用什么截图软件好了，来查找一下看看
 https://jietu.qq.com/ 这个截图软件好用。

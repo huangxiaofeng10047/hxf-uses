@@ -8,7 +8,7 @@ updatedAt: 1715332619620
 tags:
   - wsl
   - archlinxu
-heroImage: /blog.jpg
+heroImage: /cover.webp
 ---
 wsl.config
 ```
