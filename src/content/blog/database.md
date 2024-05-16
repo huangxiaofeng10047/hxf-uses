@@ -9,6 +9,7 @@ tags:
   - database
 heroImage: /blog.jpg
 ---
+
 test
 test222
 
@@ -17,8 +18,3 @@ testtt
 dddd
 
 ![aeron-chair-by-herman-miller_aeron-chair-2-jpeg.jpg](/posts/database_aeron-chair-by-herman-miller-aeron-chair-2-jpeg-jpg.jpg)
-
-
-ok this is mybook
-
-can you tell me wj
