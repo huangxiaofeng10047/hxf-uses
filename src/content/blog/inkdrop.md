@@ -6,7 +6,7 @@ title: inkdrop修改
 createdAt: 1715220794630
 updatedAt: 1715220843922
 tags: []
-heroImage: /blogjpg.jpeg
+heroImage: /blog.jpg
 ---
 this is my first app.
 can you tell me why not connect.

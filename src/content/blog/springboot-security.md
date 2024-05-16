@@ -8,7 +8,7 @@ updatedAt: 1714923038228
 tags:
   - springboot
   - jdk17
-heroImage: /blogjpg.jpeg
+heroImage: /blog.jpg
 ---
 在Spring Security 5.7.0-M2中，Spring就废弃了WebSecurityConfigurerAdapter，因为Spring官方鼓励用户转向基于组件的安全配置。本文整理了一下新的配置方法。 
 

@@ -6,7 +6,7 @@ title: tmux配置
 createdAt: 1715332789180
 updatedAt: 1715333027049
 tags: []
-heroImage: /blogjpg.jpeg
+heroImage: /blog.jpg
 ---
 
 .tmux.conf.local
