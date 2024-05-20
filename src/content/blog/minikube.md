@@ -4,7 +4,7 @@ slug: minikube
 public: true
 title: minikube配置网络为calico BGP模式
 createdAt: 1716168024270
-updatedAt: 1716196745746
+updatedAt: 1716223737332
 tags: []
 heroImage: /cover.webp
 ---
@@ -494,3 +494,188 @@ spec:
 -   **本文链接：** [https://www.cnblogs.com/amsilence/p/17478716.html](https://www.cnblogs.com/amsilence/p/17478716.html)
 -   **关于博主：** 评论和私信会在第一时间回复。或者[直接私信](https://msg.cnblogs.com/msg/send/amsilence)我。
 -   **版权声明：** 本博客所有文章除特别声明外，均采用 [BY-NC-SA](https://creativecommons.org/licenses/by-nc-sa/4.0/ "BY-NC-SA") 许可协议。转载请注明出处！
+
+测试
+部署完成之后我们在k8s集群中部署一个nginx测试一下是否能够正常工作。首先我们创建一个名为`nginx-quic`的命名空间（`namespace`），然后在这个命名空间内创建一个名为`nginx-quic-deployment`的`deployment`用来部署pod，最后再创建一个`service`用来暴露服务，这里我们同时使用`nodeport`和`LoadBalancer`两种方式来暴露服务，并且其中一个`LoadBalancer`的服务还要指定`LoadBalancerIP`方便我们测试。
+```shell
+# cat ngx-system.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nginx-quic
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-quic-deployment
+  namespace: nginx-quic
+spec:
+  selector:
+    matchLabels:
+      app: nginx-quic
+  replicas: 4
+  template:
+    metadata:
+      labels:
+        app: nginx-quic
+    spec:
+      containers:
+      - name: nginx-quic
+        image: tinychen777/nginx-quic:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-headless-service
+  namespace: nginx-quic
+spec:
+  selector:
+    app: nginx-quic
+  clusterIP: None
+
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-quic-service
+  namespace: nginx-quic
+spec:
+  externalTrafficPolicy: Cluster
+  selector:
+    app: nginx-quic
+  ports:
+  - protocol: TCP
+    port: 8080 # match for service access port
+    targetPort: 80 # match for pod access port
+    nodePort: 30088 # match for external access port
+  type: NodePort
+
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-clusterip-service
+  namespace: nginx-quic
+spec:
+  selector:
+    app: nginx-quic
+  ports:
+  - protocol: TCP
+    port: 8080 # match for service access port
+    targetPort: 80 # match for pod access port
+  type: ClusterIP
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    purelb.io/service-group: bgp-ippool
+  name: nginx-lb-service
+  namespace: nginx-quic
+spec:
+  allocateLoadBalancerNodePorts: true
+  externalTrafficPolicy: Cluster
+  internalTrafficPolicy: Cluster
+  selector:
+    app: nginx-quic
+  ports:
+  - protocol: TCP
+    port: 80 # match for service access port
+    targetPort: 80 # match for pod access port
+  type: LoadBalancer
+  loadBalancerIP: 10.33.192.80
+
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    purelb.io/service-group: bgp-ippool
+  name: nginx-lb2-service
+  namespace: nginx-quic
+spec:
+  allocateLoadBalancerNodePorts: true
+  externalTrafficPolicy: Cluster
+  internalTrafficPolicy: Cluster
+  selector:
+    app: nginx-quic
+  ports:
+  - protocol: TCP
+    port: 80 # match for service access port
+    targetPort: 80 # match for pod access port
+  type: LoadBalancer
+```
+部署完成之后我们检查各项服务的状态
+
+```shell
+-bash-4.2$ kubectl get pods -n nginx-quic -o wide                              NAME                                     READY   STATUS    RESTARTS   AGE     IP                NODE           NOMINATED NODE   READINESS GATES
+nginx-quic-deployment-684bc585f7-446sf   1/1     Running   0          2m59s   192.168.205.194   minikube-m02   <none>           <none>
+nginx-quic-deployment-684bc585f7-dlwpp   1/1     Running   0          2m59s   192.168.120.65    minikube       <none>           <none>
+nginx-quic-deployment-684bc585f7-ghtfx   1/1     Running   0          2m59s   192.168.205.195   minikube-m02   <none>           <none>
+nginx-quic-deployment-684bc585f7-lnps2   1/1     Running   0          2m59s   192.168.151.9     minikube-m03   <none>           <none>
+-bash-4.2$ kubectl get svc -n nginx-quic -o wide                               NAME                      TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE     SELECTOR
+nginx-clusterip-service   ClusterIP      10.96.178.183   <none>        8080/TCP         4m23s   app=nginx-quic
+nginx-headless-service    ClusterIP      None            <none>        <none>           4m23s   app=nginx-quic
+nginx-lb-service          LoadBalancer   10.96.36.21     <pending>     80:30203/TCP     4m23s   app=nginx-quic
+nginx-lb2-service         LoadBalancer   10.96.18.228    10.110.0.0    80:32202/TCP     4m23s   app=nginx-quic
+nginx-quic-service        NodePort       10.96.248.61    <none>        8080:30088/TCP   4m23s   app=nginx-quic
+-bash-4.2$ curl 10.110.0.0
+192.168.49.2:36881
+
+```
+随后我们分别在集群内外的机器进行测试，分别访问podIP 、clusterIP和loadbalancerIP。
+
+```shell
+# 查看是否能够正确返回集群外的客户端的IP地址10.31.100.100
+# 在集群外访问pod IP
+root@tiny-unraid:~# curl 10.33.26.2
+10.31.100.100:43240
+# 在集群外访问clusterIP
+root@tiny-unraid:~# curl 10.33.151.137
+10.31.90.5:52758
+# 在集群外访问loadbalancerIP
+root@tiny-unraid:~# curl 10.33.192.0
+10.31.90.5:7319
+# 在集群外访问loadbalancerIP
+root@tiny-unraid:~# curl 10.33.192.80
+10.31.90.5:38170
+
+# 查看是否能够正确返回集群内的node的IP地址10.31.90.1
+# 在集群内的node进行测试
+[root@k8s-calico-master-10-31-90-1 ~]# curl 10.33.26.2
+10.31.90.1:40222
+[root@k8s-calico-master-10-31-90-1 ~]# curl 10.33.151.137
+10.31.90.1:50773
+[root@k8s-calico-master-10-31-90-1 ~]# curl 10.33.192.0
+10.31.90.1:19219
+[root@k8s-calico-master-10-31-90-1 ~]# curl 10.33.192.80
+10.31.90.1:22346
+
+# 查看是否能够正确返回集群内的pod的IP地址10.33.93.3
+# 在集群内的pod进行测试
+[root@nginx-quic-deployment-5d7d9559dd-8gm7s /]# curl 10.33.26.2
+10.33.93.3:39560
+[root@nginx-quic-deployment-5d7d9559dd-8gm7s /]# curl 10.33.151.137
+10.33.93.3:58160
+[root@nginx-quic-deployment-5d7d9559dd-8gm7s /]# curl 10.33.192.0
+10.31.90.6:34183
+[root@nginx-quic-deployment-5d7d9559dd-8gm7s /]# curl 10.33.192.80
+10.31.90.6:64266
+```
+最后检测一下路由器端的情况，可以看到对应的podIP、clusterIP和loadbalancerIP段路由
+
