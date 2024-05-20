@@ -4,7 +4,7 @@ slug: minikube
 public: true
 title: minikube配置网络为calico BGP模式
 createdAt: 1716168024270
-updatedAt: 1716189405254
+updatedAt: 1716196745746
 tags: []
 heroImage: /cover.webp
 ---
@@ -17,6 +17,7 @@ heroImage: /cover.webp
  ansible all -i inventory/mycluster/hosts.yaml -m shell -a "sudo systemctl stop firewalld && sudo systemctl disable firewalld"
  ansible-playbook -i inventory/mycluster/hosts.yaml -u root  --become --become-user=root reset.yml
 
+注意查看网络，发现了一个dnsmasq 启动了一个libvert的虚拟网卡。
 ```
 
 ### 1.1 硬件基础信息
