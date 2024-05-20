@@ -8,7 +8,7 @@ updatedAt: 1715840691741
 tags:
   - go
   - gin
-heroImage: /blog.jpg
+heroImage: /cover.webp
 ---
 
 ## 第一步使用gin开始开发项目

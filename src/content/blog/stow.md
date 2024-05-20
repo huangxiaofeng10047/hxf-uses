@@ -7,7 +7,7 @@ createdAt: 1715910251240
 updatedAt: 1715915744645
 tags:
   - stow
-heroImage: /blog.jpg
+heroImage: /cover.webp
 ---
 # 使用Stow和dotfiles来管理配置文件
 

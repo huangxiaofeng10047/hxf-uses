@@ -6,7 +6,7 @@ title: 使用codesnap来存储代码截图
 createdAt: 1715915744675
 updatedAt: 1715916591801
 tags: []
-heroImage: /blog.jpg
+heroImage: /cover.webp
 ---
 使用codenasp存储的照片，非常好看的了。
 参考文档来自官方文档
