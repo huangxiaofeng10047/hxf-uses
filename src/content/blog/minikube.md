@@ -4,7 +4,7 @@ slug: minikube
 public: true
 title: minikube配置网络为calico BGP模式
 createdAt: 1716168024270
-updatedAt: 1716223737332
+updatedAt: 1716259081398
 tags: []
 heroImage: /cover.webp
 ---
@@ -679,3 +679,41 @@ root@tiny-unraid:~# curl 10.33.192.80
 ```
 最后检测一下路由器端的情况，可以看到对应的podIP、clusterIP和loadbalancerIP段路由
 
+### 测试
+
+正常情况下启用BGP广播后，三分钟内核心交换即可接收到路由信息。
+
+```shell
+-bash-4.2$ dig -x 192.168.205.194 @10.96.0.10
+
+; <<>> DiG 9.11.4-P2-RedHat-9.11.4-26.P2.el7_9.15 <<>> -x 192.168.205.194 @10.96.0.10
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 19212
+;; flags: qr aa rd; QUERY: 1, ANSWER: 5, AUTHORITY: 0, ADDITIONAL: 1
+;; WARNING: recursion requested but not available
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; QUESTION SECTION:
+;194.205.168.192.in-addr.arpa.  IN      PTR
+
+;; ANSWER SECTION:
+194.205.168.192.in-addr.arpa. 30 IN     PTR     192-168-205-194.nginx-headless-service.nginx-quic.svc.cluster.local.
+194.205.168.192.in-addr.arpa. 30 IN     PTR     192-168-205-194.nginx-clusterip-service.nginx-quic.svc.cluster.local.
+194.205.168.192.in-addr.arpa. 30 IN     PTR     192-168-205-194.nginx-quic-service.nginx-quic.svc.cluster.local.
+194.205.168.192.in-addr.arpa. 30 IN     PTR     192-168-205-194.nginx-lb2-service.nginx-quic.svc.cluster.local.
+194.205.168.192.in-addr.arpa. 30 IN     PTR     192-168-205-194.nginx-lb-service.nginx-quic.svc.cluster.local.
+
+;; Query time: 1 msec
+;; SERVER: 10.96.0.10#53(10.96.0.10)
+;; WHEN: Tue May 21 10:34:06 CST 2024
+;; MSG SIZE  rcvd: 588
+
+
+# 输出
+
+-bash-4.2$ curl 192.168.205.194
+192.168.49.3:49676
+
+```
