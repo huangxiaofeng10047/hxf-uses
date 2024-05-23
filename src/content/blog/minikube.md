@@ -4,7 +4,7 @@ slug: minikube
 public: true
 title: minikube配置网络为calico BGP模式
 createdAt: 1716168024270
-updatedAt: 1716259081398
+updatedAt: 1716355841244
 tags: []
 heroImage: /cover.webp
 ---
@@ -114,7 +114,7 @@ minikube start \
 --extra-config=kubeadm.pod-network-cidr=192.168.0.0/16 \
 --service-cluster-ip-range=10.96.0.0/16 \
 --kubernetes-version=v1.30.0 \
---base-image=docker.io/kicbase/stable:v0.0.39 \
+--base-image=gcr.io/k8s-minikube/kicbase:v0.0.44  \
 --registry-mirror=https://docker.nju.edu.cn \
 --cpus=2 \
 --memory=4096mb \
@@ -184,8 +184,8 @@ echo "nameserver 8.8.8.8" >> /etc/resolv.conf
 ### 3.3 部署calico
 
 ```sh
-$ kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.25.1/manifests/tigera-operator.yaml 
-$ kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.25.1/manifests/custom-resources.yaml
+ kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.25.1/manifests/tigera-operator.yaml 
+ kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.25.1/manifests/custom-resources.yaml
 ```
 ![clipboard12.png](/posts/minikube_clipboard12-png.png)
 ## 4\. 安装kubernetes插件
@@ -242,6 +242,11 @@ $ sudo yum install -y frr
 $ sudo sed -i 's/bgpd=no/bgpd=yes/g' /etc/frr/daemons 
 $ sudo systemctl enable frr 
 $ sudo systemctl start frr
+```
+如何过时archlinux
+```
+yay -S frr
+
 ```
 
 -   配置BGP,语法和cisco一致
@@ -716,4 +721,109 @@ root@tiny-unraid:~# curl 10.33.192.80
 -bash-4.2$ curl 192.168.205.194
 192.168.49.3:49676
 
+```
+
+注意在wsl2+mirrored下，需要关闭autoProxy=false才可以正确启动minikube。
+![clipboard20.png](/posts/minikube_clipboard20-png.png)
+# 创建redis
+
+```shell
+kubectl create namespace redis-ns
+namespace/redis-ns created
+
+# cat redis-config.yml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-config
+  namespace: redis-ns
+  labels:
+    app: redis
+data:
+  redis.conf: |-
+    dir /srv
+    port 6379
+    bind 0.0.0.0
+    appendonly yes
+    daemonize no
+    #protected-mode no
+    requirepass test
+    pidfile /srv/redis-6379.pid    
+```
+
+redis.yaml
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: redis-ns
+  labels:
+    app: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:5.0.7
+        command:
+          - "sh"
+          - "-c"
+          - "redis-server /usr/local/redis/redis.conf"
+        ports:
+        - containerPort: 6379
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 1024Mi
+          requests:
+            cpu: 1000m
+            memory: 1024Mi
+        livenessProbe:
+          tcpSocket:
+            port: 6379
+          initialDelaySeconds: 300
+          timeoutSeconds: 1
+          periodSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          tcpSocket:
+            port: 6379
+          initialDelaySeconds: 5
+          timeoutSeconds: 1
+          periodSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
+        volumeMounts:
+        - name: config
+          mountPath:  /usr/local/redis/redis.conf
+          subPath: redis.conf
+      volumes:
+      - name: config
+        configMap:
+          name: redis-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-redis
+  namespace: redis-ns
+spec:
+  ports:
+    - port: 6379
+      protocol: TCP
+      targetPort: 6379
+      nodePort: 30120
+  selector:
+    app: redis
+  type: NodePort
 ```
