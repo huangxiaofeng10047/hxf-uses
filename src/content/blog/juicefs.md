@@ -4,7 +4,7 @@ slug: juicefs
 public: true
 title: juicefs部署
 createdAt: 1718615414596
-updatedAt: 1718616776355
+updatedAt: 1718949325930
 tags:
   - juicefs
 heroImage: /cover.webp
@@ -237,3 +237,135 @@ df -Th
 
 完成这些步骤后，就可以访问 `/juicefs` 目录来存取文件了。
 
+再k3s上安装juicefs
+![clipboard4.png](/posts/juicefs_clipboard4-png.png)
+创建一个nginx来试试
+service.yaml
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-run-service
+spec:
+  selector:
+    app: nginx
+  ports:
+    - name: http
+      port: 80
+
+```
+deployment.yaml
+```
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: web-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Pi
+  storageClassName: juicefs-sc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-run
+  labels:
+    app: nginx
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx
+          image: linuxserver/nginx
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - mountPath: /config
+              name: web-data
+      volumes:
+        - name: web-data
+          persistentVolumeClaim:
+            claimName: web-pvc
+
+```
+
+![clipboard4.png](/posts/juicefs_clipboard4-png.png)
+## juice-fs 的storageclass
+
+创建storageclass
+
+```
+
+xfhuang@ubuntu2:~$ cat juicefs-sc.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: juicefs-sc-secret
+  namespace: kube-system
+type: Opaque
+stringData:
+  name: "test"
+  metaurl: "redis://:xj2023@10.7.20.12:6379/1"
+  storage: "s3"
+  bucket: "http://10.7.20.12:9000/juicefs"
+  access-key: "c6VzVSfQvgspXBTW"
+  secret-key: "QMY4kHz1y8l1xNEFLX7khVxgilYwuemL"
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: juicefs-sc
+provisioner: csi.juicefs.com
+reclaimPolicy: Retain
+volumeBindingMode: Immediate
+parameters:
+  csi.storage.k8s.io/node-publish-secret-name: juicefs-sc-secret
+  csi.storage.k8s.io/node-publish-secret-namespace: kube-system
+  csi.storage.k8s.io/provisioner-secret-name: juicefs-sc-secret
+  csi.storage.k8s.io/provisioner-secret-namespace: kube-system
+
+```
+
+```
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx-run-ingress
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web
+spec:
+  rules:
+    - http:
+        paths:
+          - pathType: Prefix
+            path: "/web"
+            backend:
+              service:
+                name: nginx-run-service
+                port:
+                  number: 80
+
+```
+
+访问一下ingress
+http://192.168.91.131:30805
+
+![clipboard6.png](/posts/juicefs_clipboard6-png.png)
+
+检查一下minio上看看 是否有文件了
+
+
+查看一下filesystem，我需要等24个小时看看，占多少内存，just waiting。~~
+
+参考文档：
+https://juicefs.com/docs/community/juicefs_on_k3s/
