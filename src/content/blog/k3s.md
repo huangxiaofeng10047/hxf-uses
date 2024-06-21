@@ -4,7 +4,7 @@ slug: k3s
 public: true
 title: k3s实践
 createdAt: 1718872466238
-updatedAt: 1718950106427
+updatedAt: 1718951783790
 tags: []
 heroImage: /posts/k3s_thumbnail.jpg
 ---
@@ -262,3 +262,70 @@ I hope this example gives you a bit more confidence when configuring Traefik on 
 Since we're only working with one node, there's a limited amount of routing flexibility that I could include in the Traefik CRD configurations. In a more complex environment, you can really go wild with all of the possibilities that are provided by Traefik routing rules! Still, the benefit of this simple example is that you can learn the basics in a small and controlled environment, and then add complexity once it's needed.
 
 Remember, if you're using k3s clustering mode and running multiple nodes, you'll need to route traffic using an [external load balancer](https://docs.k3s.io/datastore/cluster-loadbalancer) like Haproxy. Maybe I'll play around with this if I ever pick up a second M900 or other mini-desktop. But until then, I'll stick with this ingress configuration.
+
+部署traefik-dashboard
+先看效果
+![clipboard.png](/posts/k3s_clipboard-png.png)
+来看看配置文件
+## Expose traefik dashboard
+
+You can use both Kubernetes standard Ingress or the Traefik CRD ingressroute for normal routes. To expose the dashboard you can use a traefik specific ingressroute CRD, or you can set up a service for it.
+
+Create service
+
+```
+cat traefik-dashboard-service.yaml | envsubst | kubectl apply -f -
+```
+
+traefik-dashboard-service.yaml
+
+```
+```
+
+Create ingress
+
+```
+cat traefik-dashboard-ingress.yaml | envsubst | kubectl apply -f -
+```
+
+traefik-dashboard-ingress.yaml
+
+```
+```
+
+Now it should be available at http\://traefik.dog.example.com/dashboard/ (note the trailing slash!).
+
+## Old method, using cert-manager
+
+#### Create https certificate for ingressroute
+
+Traefik does not support using cert-manager for tls. So when using ingressroute with https you need to first create a "fake" ingress to get a secret with the desired name. Then you use that secret like below.
+
+> **Wildcard:** Alternatively you could get a wildcard certificate, and just use that. The setup for that is slightly more complicated and might require using a third party nameserver like digitalocean or cloudflare to help with the challenges.
+
+- Create the temporary ingress so cert-manager gets the intial certificate
+
+```
+cat traefik-dashboard-tmp-ingress.yaml | envsubst | kubectl apply -f -
+```
+
+- Wait until you are able to access [https://traefik.dog.example.com](https://traefik.dog.example.com/) without errors or warnings about certificate.
+- Then delete it
+
+```
+cat traefik-dashboard-tmp-ingress.yaml | envsubst | kubectl delete -f -
+```
+
+- Finally create the traefik native ingressroute
+
+```
+cat traefik-ingressroute-no-auth.yaml | envsubst | kubectl apply -f -
+```
+
+# Done
+
+Now you should have the traefik dashboard available on [https://traefik.dog.yourdomain.com](https://traefik.dog.example.com/)
+
+参考文档：
+
+https://k3s.rocks/traefik-dashboard/

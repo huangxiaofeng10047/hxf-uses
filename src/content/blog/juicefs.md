@@ -4,14 +4,15 @@ slug: juicefs
 public: true
 title: juicefs部署
 createdAt: 1718615414596
-updatedAt: 1718949325930
+updatedAt: 1718952967660
 tags:
   - juicefs
-heroImage: /cover.webp
+heroImage: /posts/juicefs_thumbnail.jpg
 ---
+
 ## 前言
  juicefs可以基于s3存储来是实现  ，接下来通过docker-compose来实现juicefs的过程
- 
+
  ## 运行minio
  通过docker-compose启动minio
  ```yaml
