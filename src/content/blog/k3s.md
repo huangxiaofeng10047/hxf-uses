@@ -4,7 +4,7 @@ slug: k3s
 public: true
 title: k3s实践
 createdAt: 1718872466238
-updatedAt: 1718951783790
+updatedAt: 1718958903053
 tags: []
 heroImage: /posts/k3s_thumbnail.jpg
 ---
@@ -329,3 +329,9 @@ Now you should have the traefik dashboard available on [https://traefik.dog.your
 参考文档：
 
 https://k3s.rocks/traefik-dashboard/
+
+其实你 还以添加basicAuth来进行验证，这里没操作，留着下次操作
+
+https://doc.traefik.io/traefik/middlewares/http/basicauth/
+
+https://k3s.rocks/basic-auth/
