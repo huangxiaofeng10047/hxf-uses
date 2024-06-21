@@ -4,9 +4,9 @@ slug: k3s
 public: true
 title: k3s实践
 createdAt: 1718872466238
-updatedAt: 1718946068425
+updatedAt: 1718950106427
 tags: []
-heroImage: /cover.webp
+heroImage: /posts/k3s_thumbnail.jpg
 ---
 # Use JuiceFS on K3s
 
@@ -147,3 +147,118 @@ parameters:
   csi.storage.k8s.io/provisioner-secret-namespace: kube-system
 
 ```
+
+如何修改k3s的traefik需要注意一下几点
+## Installing k3s
+
+The k3s installation process is fairly straightforward. It just requires `curl`ing `https://get.k3s.io` and executing the script. The default settings all make sense to me, except for the need to `chmod` the bundled kubeconfig since its default filemode is inaccessible to non-root users. Luckly, k3s has a solution for that! All you need to do is `export K3S_KUBECONFIG_MODE="644"` before you run the installation, and the k3s install script does the rest.
+
+## Configuring Traefik
+
+By default, host ports 80 and 443 are exposed by the bundled Traefik ingress controller. This will let you create HTTP and HTTPS ingresses on their standard ports.
+
+But of course, I want to run a [QuestDB](https://questdb.io/) instance on my node, which uses two additional TCP ports for Influx Line Protocol (ILP) and Pgwire communication with the database. So how can I expose these extra ports on my node and route traffic to the QuestDB container running inside of k3s?
+
+K3s deploys Traefik via a Helm chart and allows you to modify that chart's `values.yaml` through a [HelmChartConfig](https://docs.k3s.io/helm#customizing-packaged-components-with-helmchartconfig) resource. To further customize `values.yaml` files for installed charts, you can place extra HelmChartConfig manifests in `/var/lib/rancher/k3s/server/manifests`. Here is my `/var/lib/rancher/k3s/server/manifests/traefik-config.yaml`:
+
+```
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChartConfig
+metadata:
+  name: traefik
+  namespace: kube-system
+spec:
+  valuesContent: |-
+    ports:
+      psql:
+        port: 8812
+        expose: true
+        exposedPort: 8812
+        protocol: TCP
+      ilp:
+        port: 9009
+        expose: true
+        exposedPort: 9009
+        protocol: TCP
+```
+
+This manifest modifies the Traefik deployment to serve two extra TCP ports on the host: 8812 for Pgwire and 9009 for ILP. Along with these new ports, Traefik also ships with its default "web" and "websecure" ports that route HTTP and HTTPS traffic respectively. But this is already preconfigured for you in the Helm chart, so there's no extra work involved.
+
+So now that we have our ports exposed, lets figure out how to route traffic from them to our QuestDB instance running inside the cluster.
+
+## IngressRoutes
+
+While you can use traditional k8s [Ingresses](https://kubernetes.io/docs/concepts/services-networking/ingress/) to configure external access to cluster resources, Traefik v2 also includes new, more flexible types of ingress that coordinate directly with the Traefik deployment. These can be configured by using Traefik-specific Custom Resources, which allow users to specify cluster ingress routes using [Traefik's custom routing rules](https://doc.traefik.io/traefik/routing/routers/) instead of the standard URI-based routing traditionally found in k8s. Using these rules, you can route requests not just based on hostnames and paths, but also by request headers, querystrings, and source IPs, with regex matching support for many of these options. This unlocks significantly more flexibility when routing traffic into your cluster as opposed to using a standard k8s ingress.
+
+Here's an example of an IngressRoute that I use to expose the QuestDB web console.
+
+```
+---
+kind: IngressRoute
+metadata:
+  name: questdb
+  namespace: questdb
+spec:
+  entryPoints:
+    - web
+  routes:
+    - kind: Rule
+      match: Host(`my-hostname`)
+      services:
+        - kind: Service
+          name: questdb
+          port: 9000
+```
+
+This CRD maps the QuestDB service port 9000 to host port 80 through the `web` entrypoint, which as I mentioned above, comes pre-installed in the Traefik Helm chart. With this config, I can now access the console by navigating to <http://my-hostname/> in my web browser and Traefik will route the request to my QuestDB HTTP service.
+
+### IngressRouteTCP
+
+It's important to note that IngressRoutes are used solely for HTTP ingress routing. Raw TCP routing is done using IngressRouteTCPs, and there are also IngressRouteUDPs available for you to use as well.
+
+To support the TCP-based ILP and Pgwire protocols, I created 2 `IngressRouteTCP` resources to handle traffic on host ports 9009 and 8812.
+
+```
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: questdb-ilp
+  namespace: questdb
+spec:
+  entryPoints:
+    - ilp
+  routes:
+    - match: HostSNI(`*`)
+      services:
+        - name: questdb
+          port: 9009
+          terminationDelay: -1
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: questdb-psql
+  namespace: questdb
+spec:
+  entryPoints:
+    - psql
+  routes:
+    - match: HostSNI(`*`)
+      services:
+        - name: questdb
+          port: 8812
+```
+
+Here, we use the TCP-specific `HostSNI` matcher to route all node traffic on ports 9009 (`ilp`) and 8812 (`psql`) to the questdb service. The `ilp` and `psql` entrypoints correspond to the `ilp` and `psql` ports that we exposed in the `traefik-config.yaml`.
+
+Now we're able to access QuestDB on all 3 supported ports on my k3s node from the rest of my home network.
+
+## Conclusion
+
+I hope this example gives you a bit more confidence when configuring Traefik on a single-node k3s "cluster". It may be a bit confusing at first, but once you have the basics down, you'll be exposing all of your hosted services in no time!
+
+Since we're only working with one node, there's a limited amount of routing flexibility that I could include in the Traefik CRD configurations. In a more complex environment, you can really go wild with all of the possibilities that are provided by Traefik routing rules! Still, the benefit of this simple example is that you can learn the basics in a small and controlled environment, and then add complexity once it's needed.
+
+Remember, if you're using k3s clustering mode and running multiple nodes, you'll need to route traffic using an [external load balancer](https://docs.k3s.io/datastore/cluster-loadbalancer) like Haproxy. Maybe I'll play around with this if I ever pick up a second M900 or other mini-desktop. But until then, I'll stick with this ingress configuration.
