@@ -4,12 +4,12 @@ slug: nacos
 public: true
 title: nacos部署在k3s上
 createdAt: 1719296088985
-updatedAt: 1719370277736
+updatedAt: 1719386523788
 tags: []
 heroImage: /cover.webp
 ---
 
-# 创建nacos
+# 创建nacos2.3.2
 所有服务都创建在namespace dev下
 
 1. namespace.yaml
@@ -462,9 +462,17 @@ spec:
 EOF
 ```
 
-![clipboard.png](/posts/nacos_clipboard-png.png)
+![clipboard12.png](/posts/nacos_clipboard12-png.png)
 nfs报错的话，就是nfs-utils 没有进行安装，ubuntu是nfs-common。
 
 nacos部署页面
 
 ![clipboard5.png](/posts/nacos_clipboard5-png.png)
+注意最新的版本限制
+
+nacos配置登录认证密码
+新版本的nacos需要自己设置参数来启动配置nacos的登录认证密码，因为默认nacos是没有账号密码可以直接登录的，这样显得不安全，而且新旧版本的配置还不一样，在官网说了：https://nacos.io/zh-cn/docs/v2/guide/user/auth.html
+下面是k8s中部署nacos：2.3.1版本，启动nacos的授权登录：
+
+
+![clipboard4.png](/posts/nacos_clipboard4-png.png)
