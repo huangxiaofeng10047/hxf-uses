@@ -4,7 +4,7 @@ slug: k3s-dashboard
 public: true
 title: k3s上安装kubernetes仪表盘
 createdAt: 1719372128789
-updatedAt: 1719386404971
+updatedAt: 1719391289815
 tags: []
 heroImage: /cover.webp
 ---
@@ -94,6 +94,8 @@ kubectl -n kubernetes-dashboard create token admin-user
 
 
 但是通过traefik来访问dashboard就报错了，这是什么原因，这是因为kong-proxy和traefik冲突了，解决办法如下
+
+![clipboard101.png](/posts/k3s-dashboard_clipboard101-png.png)
 
 a Traefik ServersTransport resource
 ```
