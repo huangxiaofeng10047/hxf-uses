@@ -4,7 +4,7 @@ slug: juicefs
 public: true
 title: juicefs部署
 createdAt: 1718615414596
-updatedAt: 1718952967660
+updatedAt: 1719288708785
 tags:
   - juicefs
 heroImage: /posts/juicefs_thumbnail.jpg
@@ -177,10 +177,10 @@ curl -sSL https://d.juicefs.com/install | sh -
 ```
 juicefs format \
     --storage minio \
-    --bucket http://<minio-server>:9000/<bucket> \
-    --access-key <your-key> \
-    --secret-key <your-secret> \
-    redis://:mypassword@<redis-server>:6379/1 \
+    --bucket http://10.7.20.12:9000/juicefs \
+    --access-key Go3gWx4MvGz5EHvikJDA \
+    --secret-key w9PcSjSnJYKhvl6aIFqVQFsFMhmEeNo3TFlGHQ4h \
+    redis://:xj2023@10.7.20.12:6379/1 \
     myjfs
 
 ```
@@ -189,7 +189,10 @@ juicefs format \
 
 ### linux
 ```shell
-juicefs mount -d redis://:123456@127.0.0.1:6379/1 /mnt/myjfs -d
+juicefs mount -d redis://:xj2023@10.7.20.12:6379/1 /mnt/myjfs -d
+
+卸载
+juicefs umount /mnt/myjfs
 ```
 查看挂载情况
 ```
@@ -364,7 +367,7 @@ http://192.168.91.131:30805
 ![clipboard6.png](/posts/juicefs_clipboard6-png.png)
 
 检查一下minio上看看 是否有文件了
-
+![clipboard.png](/posts/juicefs_clipboard-png.png)
 
 查看一下filesystem，我需要等24个小时看看，占多少内存，just waiting。~~
 
