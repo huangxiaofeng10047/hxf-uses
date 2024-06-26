@@ -4,7 +4,7 @@ slug: k3s-dashboard
 public: true
 title: k3s上安装kubernetes仪表盘
 createdAt: 1719372128789
-updatedAt: 1719391289815
+updatedAt: 1719392032981
 tags: []
 heroImage: /cover.webp
 ---
@@ -96,7 +96,7 @@ kubectl -n kubernetes-dashboard create token admin-user
 但是通过traefik来访问dashboard就报错了，这是什么原因，这是因为kong-proxy和traefik冲突了，解决办法如下
 
 ![clipboard101.png](/posts/k3s-dashboard_clipboard101-png.png)
-
+参考url： https://github.com/kubernetes/dashboard/issues/9051
 a Traefik ServersTransport resource
 ```
  cat serverTransport.yaml
@@ -191,6 +191,40 @@ eyJhbGciOiJSUzI1NiIsImtpZCI6Ilp0dmNzenhMRmFQMTUxOU1hNVFoQ2RyS0ZFNWV2YjEtbFFwRjNV
 
 
 ```
+对比一下
+
+```
+ cat user.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: admin-user
+  namespace: kubernetes-dashboard
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: admin-user
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: admin-user
+    namespace: kubernetes-dashboard
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: admin-user
+  namespace: kubernetes-dashboard
+  annotations:
+    kubernetes.io/service-account.name: "admin-user"
+type: kubernetes.io/service-account-token
+
+```
+
 登录成功，
 
 
