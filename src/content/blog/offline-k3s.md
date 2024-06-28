@@ -246,3 +246,7 @@ spec:
 EOF                  
 
 ```
+
+使用skopeo来进行镜像的同步
+
+另外导入镜像是通过，上传tar包到/var/lib/rancher/k3s/agent/images/这个目录中，重启k3s即可。
