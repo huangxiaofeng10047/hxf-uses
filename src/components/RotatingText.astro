@@ -1,0 +1,38 @@
+---
+---
+<!DOCTYPE html>
+<div class="rotating-text">
+  <svg viewBox="0 0 100 100" class="rotating-svg">
+    <path id="text-path" d="M 0 50 A 50 50 0 1 1 100 50 A 50 50 0 1 1 0 50" fill="none" stroke="none"/>
+    <text>
+      <textPath href="#text-path" startOffset="0" dominant-baseline="middle" text-anchor="middle" style="font-family: Arial, sans-serif; font-size: 10px;">
+        © 2024 Conduktor Inc. All Rights Reserved.
+      </textPath>
+    </text>
+  </svg>
+</div>
+
+<style>
+  .rotating-text {
+    width: 200px;
+    height: 200px;
+    position: relative;
+    margin: 50px auto;
+  }
+
+  .rotating-svg {
+    width: 100%;
+    height: 100%;
+    transform-origin: center;
+    animation: rotate 10s linear infinite;
+  }
+
+  @keyframes rotate {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+</style>

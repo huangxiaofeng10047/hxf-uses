@@ -5,3 +5,18 @@ const today = new Date();
 <footer class="text-zinc-500 p-4 text-center">
 	&copy; {today.getFullYear()} Huang Xiaofeng. All rights reserved.
 </footer>
+//生成一个环形旋转的文本
+<script>
+  const text = "Huang Xiaofeng";
+  const textArray = text.split("");
+  const textContainer = document.querySelector(".text-container");
+  textArray.forEach((letter, i) => {
+	const span = document.createElement("span");
+	span.textContent = letter;
+	span.style.transform = `rotate(${i * 10}deg)`;
+	textContainer.appendChild(span);
+  });
+  setInterval(() => {
+	textContainer.style.transform = `rotate(${Math.random() * 360}deg)`;
+  }, 1000);
+</script>

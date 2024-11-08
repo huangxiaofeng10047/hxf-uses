@@ -6,6 +6,7 @@ import Footer from '../components/Footer.astro';
 import { SITE_TITLE } from '../consts';
 import Content from '../components/Content.astro'
 import Body from '../components/Body.astro'
+import RotatingText from '../components/RotatingText.astro'
 
 type Props = CollectionEntry<'blog'>['data'];
 
@@ -44,6 +45,7 @@ const { title, description, heroImage } = Astro.props;
 				></span>
 			  </Content>
 		</main>
+		<RotatingText />
 		<Footer />
 	</Body>
 </html>
